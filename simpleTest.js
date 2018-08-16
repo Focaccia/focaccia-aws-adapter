@@ -14,17 +14,23 @@ var s3 = new AWS.S3({endpoint:'http://localhost:4572'});
 let oA = new AwsS3Adapter(s3, 'newBucket');
 
 /** UPLOAD A FILE */
+
+// let res = oA.upload("test.txt", "HOLA MUNDO");
+// res.then((d) => {
+//   console.log("RESULT", d);
+// })
+
+
+
 /*
-let res = oA.upload("test.txt", "HOLA MUNDO");
-console.log(res.then((d) => {
-  console.log(d);
-}));
-*/
-
-
-
  
  let res = oA.copy("test.txt", "copied-file.txt");
  res.then((dat) => {
   console.log("DATA", dat);
+})
+*/
+
+let res = oA.rename("test.txt", "renamed-file.txt");
+res.then((res) => {
+  console.log("RENAMED", res);
 })

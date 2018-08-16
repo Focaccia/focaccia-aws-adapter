@@ -103,25 +103,139 @@ class AwsS3Adapter extends BaseAdapter {
         return this.upload(path, contents, config);
     }
 
-    rename(path, newpath) {
+    /**
+     * Rename an object
+     * @param {string} path 
+     * @param {string} newpath 
+     */
+    async rename(path, newpath) {
+        
+        let copied = await this.copy(path, newpath);
 
+        if (!copied) {
+            return false;
+        }
+
+        try {
+            let deleted = await this.delete(path);
+        } catch (e) {
+            return false;
+        }
+        
+
+        return true;
     }
 
-    delete(path) {}
+    /**
+     * Delete an object
+     * @TODO: Implementation
+     * @param {string} path 
+     */
+    delete(path) {
+        let location = this.applyPathPrefix(path);
+
+        let params = {
+            "Bucket": this.bucket,
+            "Key": location
+        };
+
+        return this.__executeS3Command("deleteObject", params)
+    }
     
+    /**
+     * Deletes a directory
+     * @TODO: Implementation
+     * @param {string} dirname 
+     */    
     deleteDir(dirname) {}
+
+    /**
+     * Creates a directory
+     * @TODO: Implementation
+     * @param {string} dirname 
+     */    
     createDir(dirname) {}
+
+    /**
+     * Checks if a file exists
+     * @TODO: Implementation
+     * @param {string} path 
+     */
     has(path) {}
+    
+    /**
+     * Read an file
+     * @TODO: Implementation
+     * @param {string} path 
+     */
     read(path) {}
+
+    /**
+     * List content of a bucket
+     * @TODO: Implementation
+     * @param {string} directory 
+     * @param {boolean} recursive 
+     */
     listContents(directory = "", recursive = false) {}
+
+    /**
+     * Retrieves paginated listing
+     * @TODO: Implementation
+     * @param {object} options 
+     */
     retrievePaginatedListing(options = []) {}
+
+    /**
+     * Get metadata of an object
+     * @TODO: Implementation
+     * @param {string} path 
+     */
     getMetadata(path) {}
+
+    /**
+     * Get size of an object
+     * @TODO: Implementation
+     * @param {string} path 
+     */
     getSize(path) {}
+
+    /**
+     * Get mimetype of an object
+     * @TODO: Implementation
+     * @param {string} path 
+     */    
     getMimetype(path) {}
+
+    /**
+     * Get timestamp of an object
+     * @TODO: Implementation
+     * @param {string} path 
+     */
     getTimestamp(path) {}
+
+    /**
+     * Write a file using streams
+     * @TODO: Implementation
+     * @param {string} path 
+     * @param {object} resource 
+     * @param {object} config 
+     */
     writeStream(path, resource, config) {}
+
+    /**
+     * Update a file using streams
+     * @TODO: Implementation
+     * @param {string} path 
+     * @param {object} resource 
+     * @param {object} config 
+     */
     updateStream(path, resource, config) {}
 
+    /**
+     * Copy a file
+     * @param {string} path 
+     * @param {string} newpath 
+     */
     copy(path, newpath) {
 
         let acl = this.__getRawVisibility(path) === ACL.VISIBILITY_PUBLIC ? "public-read" : "private";
@@ -136,9 +250,32 @@ class AwsS3Adapter extends BaseAdapter {
         return this.__executeS3Command("copyObject", params);
     }
 
+    /**
+     * Read a file stream
+     * @TODO: Implementation
+     * @param {string} path 
+     */
     readStream(path) {}
+
+    /**
+     * Read an object and normalize
+     * @TODO: Implementation
+     * @param {string} path 
+     */
     readObject(path) {}
+
+    /**
+     * Set visibility for an object
+     * @param {string} path 
+     * @param {string} visibility 
+     * @TODO: Implementation
+     */
     setVisibility(path, visibility) {}
+
+    /**
+     * Get visibility of an object
+     * @param {*} path 
+     */
     getVisibility(path) {}
 
     /** 
@@ -206,6 +343,12 @@ class AwsS3Adapter extends BaseAdapter {
         return options;
     }
 
+    /**
+     * Normalize AWS S3 response to a focaccia friendly object
+     * 
+     * @param {object} response 
+     * @param {string} path 
+     */
     __normalizeResponse(response, path = null) {
 
         let result = {
@@ -222,6 +365,11 @@ class AwsS3Adapter extends BaseAdapter {
         return this.__mapResult({...response, ...result});
     }
 
+    /**
+     * Map the result for focaccia
+     * 
+     * @param {object} result 
+     */
     __mapResult(result) {
         
         let newResult = {};
@@ -238,6 +386,11 @@ class AwsS3Adapter extends BaseAdapter {
         return newResult;
     }
 
+    /**
+     * Get AWS visibility permission and maps against focaccia
+     * 
+     * @param {string} path 
+     */
     async __getRawVisibility(path) {
 
         let params = {
@@ -265,12 +418,22 @@ class AwsS3Adapter extends BaseAdapter {
                 break;
             }
         }
-
     }
+
+    /**
+     * Check if a directory exists
+     * @param {string} location 
+     */
     __doesDirectoryExist(location) {}
 
-    async __executeS3Command(command, params) {
-        return await new Promise((resolve, reject) => {
+    /**
+     * Execute AWS s3 command and generate a promise
+     * 
+     * @param {string} command 
+     * @param {object} params 
+     */
+    __executeS3Command(command, params) {
+        return new Promise((resolve, reject) => {
             this.s3Client[command](params, (err, res) => {
                 if (res) { resolve(res); }
                 if (err) { reject(err); }
