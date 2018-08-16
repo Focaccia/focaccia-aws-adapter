@@ -1,5 +1,5 @@
 {
-  "name": "focaccia-aws-adapter",
+  "name": "@focaccia/aws-adapter",
   "version": "1.0.0",
   "description": "Focaccia AWS storage abstraction layer.",
   "main": "index.js",
@@ -27,5 +27,9 @@
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "aws-sdk": "^2.293.0",
+    "uuid": "^3.3.2",
+    "@focaccia/focaccia": "file:../focaccia"
+  }
 }
