@@ -127,7 +127,6 @@ class AwsS3Adapter extends BaseAdapter {
 
     /**
      * Delete an object
-     * @TODO: Implementation
      * @param {string} path 
      */
     async delete(path) {
@@ -160,7 +159,6 @@ class AwsS3Adapter extends BaseAdapter {
 
     /**
      * Checks if a file exists
-     * @TODO: Implementation
      * @param {string} path 
      */
     async has(path) {
@@ -454,7 +452,7 @@ class AwsS3Adapter extends BaseAdapter {
           } catch (e) {
               return false;
           }
-          
+
           for (let k in result["Contents"]) {
               let content = result["Contents"][k];
 
@@ -474,7 +472,6 @@ class AwsS3Adapter extends BaseAdapter {
         let Prefix = this.applyPathPrefix(path) + '/';
         let result = await this.objectExists(Prefix);
         return result;
-
     }
 
     /**
