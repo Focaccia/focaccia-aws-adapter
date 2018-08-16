@@ -99,8 +99,8 @@ class AwsS3Adapter extends BaseAdapter {
      * @param {string} contents 
      * @param {object} config 
      */
-    upload(path, contents, config = {}) {
-        return this.upload(path, contents, config);
+    async upload(path, contents, config = {}) {
+        return await this.upload(path, contents, config);
     }
 
     /**
@@ -122,7 +122,6 @@ class AwsS3Adapter extends BaseAdapter {
             return false;
         }
         
-
         return true;
     }
 
@@ -131,7 +130,7 @@ class AwsS3Adapter extends BaseAdapter {
      * @TODO: Implementation
      * @param {string} path 
      */
-    delete(path) {
+    async delete(path) {
         let location = this.applyPathPrefix(path);
 
         let params = {
@@ -139,7 +138,10 @@ class AwsS3Adapter extends BaseAdapter {
             "Key": location
         };
 
-        return this.__executeS3Command("deleteObject", params)
+        await this.__executeS3Command("deleteObject", params);
+
+        let response = await this.has(path);
+        return !response;
     }
     
     /**
@@ -161,8 +163,20 @@ class AwsS3Adapter extends BaseAdapter {
      * @TODO: Implementation
      * @param {string} path 
      */
-    has(path) {}
+    async has(path) {
+        let location = this.applyPathPrefix(path);
+        
+        let fileExists = await this.objectExists(location);
+
+        if (fileExists) {
+            return true;
+        }
+
+        let response = await this.__doesDirectoryExist(path);
+        return response;
+    }
     
+
     /**
      * Read an file
      * @TODO: Implementation
@@ -420,11 +434,48 @@ class AwsS3Adapter extends BaseAdapter {
         }
     }
 
+
+    async objectExists(Prefix) {
+        
+        let params = {
+            "Bucket": this.bucket,
+            "Prefix": Prefix,
+          };
+          
+          let result = {};
+
+          try {
+            result = await new Promise((resolve, reject) => {
+                this.s3Client.listObjectsV2(params, (err, data) => {
+                    if (err) reject(err);
+                    else resolve(data);
+                });
+            });
+          } catch (e) {
+              return false;
+          }
+          
+          for (let k in result["Contents"]) {
+              let content = result["Contents"][k];
+
+              if (content["Key"] === Prefix) {
+                  return true;
+              }
+          }
+        
+          return false;
+    }
+
     /**
      * Check if a directory exists
-     * @param {string} location 
+     * @param {string} path 
      */
-    __doesDirectoryExist(location) {}
+    async __doesDirectoryExist(path) {
+        let Prefix = this.applyPathPrefix(path) + '/';
+        let result = await this.objectExists(Prefix);
+        return result;
+
+    }
 
     /**
      * Execute AWS s3 command and generate a promise
@@ -432,13 +483,10 @@ class AwsS3Adapter extends BaseAdapter {
      * @param {string} command 
      * @param {object} params 
      */
-    __executeS3Command(command, params) {
-        return new Promise((resolve, reject) => {
-            this.s3Client[command](params, (err, res) => {
-                if (res) { resolve(res); }
-                if (err) { reject(err); }
-            });
-        });
+    async __executeS3Command(command, params) {
+
+        let res = await this.s3Client[command](params).promise();
+        return res;
     }
 
 }
