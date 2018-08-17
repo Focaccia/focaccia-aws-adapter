@@ -1,6 +1,6 @@
 
 const { BaseAdapter, CONSTANTS, Utils } = require("@focaccia/focaccia");
-const {stringUtils} = Utils;
+const {stringUtils, fileUtils} = Utils;
 const { ACL } = CONSTANTS;
 
 const RESULT_MAP = {
@@ -190,7 +190,6 @@ class AwsS3Adapter extends BaseAdapter {
 
     /**
      * List content of a bucket
-     * @TODO: Implementation
      * @param {string} directory 
      * @param {boolean} recursive 
      */
@@ -217,12 +216,11 @@ class AwsS3Adapter extends BaseAdapter {
             return this.__normalizeResponse(item);
         });
 
-        return normalized;
+        return fileUtils.emulateDirectories(normalized);
     }
 
     /**
      * Retrieves paginated listing
-     * @TODO: Implementation
      * @param {object} options 
      */
     async retrievePaginatedListing(params = {}) {
@@ -282,21 +280,23 @@ class AwsS3Adapter extends BaseAdapter {
 
     /**
      * Write a file using streams
-     * @TODO: Implementation
      * @param {string} path 
      * @param {object} resource 
      * @param {object} config 
      */
-    writeStream(path, resource, config) {}
+    async writeStream(path, resource, config) {
+        return await this.upload(path, resource, config);
+    }
 
     /**
      * Update a file using streams
-     * @TODO: Implementation
      * @param {string} path 
      * @param {object} resource 
      * @param {object} config 
      */
-    updateStream(path, resource, config) {}
+    async updateStream(path, resource, config) {
+        return await this.upload(path, resource, config);
+    }
 
     /**
      * Copy a file
@@ -319,14 +319,22 @@ class AwsS3Adapter extends BaseAdapter {
 
     /**
      * Read a file stream
-     * @TODO: Implementation
      * @param {string} path 
      */
-    readStream(path) {}
+    readStream(path) {
+        response = this.__readObject(path);
+        
+        if (response === false) {
+            return false;
+        }
+
+        response["stream"] = response["contents"];
+
+        return response;
+    }
 
     /**
      * Read an object and normalize
-     * @TODO: Implementation
      * @param {string} path 
      */
     async __readObject(path) {
@@ -355,6 +363,7 @@ class AwsS3Adapter extends BaseAdapter {
 
     /**
      * Get visibility of an object
+     * @TODO: Implementation
      * @param {*} path 
      */
     getVisibility(path) {}
