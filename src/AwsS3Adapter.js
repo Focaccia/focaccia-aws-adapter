@@ -1,5 +1,6 @@
 
-const { BaseAdapter, CONSTANTS } = require("@focaccia/focaccia");
+const { BaseAdapter, CONSTANTS, Utils } = require("@focaccia/focaccia");
+const {stringUtils} = Utils;
 const { ACL } = CONSTANTS;
 
 const RESULT_MAP = {
@@ -140,7 +141,6 @@ class AwsS3Adapter extends BaseAdapter {
     
     /**
      * Deletes a directory
-     * @TODO: Implementation
      * @param {string} dirname 
      */    
     async deleteDir(dirname) {
@@ -174,11 +174,19 @@ class AwsS3Adapter extends BaseAdapter {
     
 
     /**
-     * Read an file
-     * @TODO: Implementation
+     * Read a file
+     * 
      * @param {string} path 
      */
-    read(path) {}
+    async read(path) {
+        let response = await this.__readObject(path);
+
+        if (response !== false) {
+            response["contents"] = response["contents"].toString();
+        }
+
+        return response;
+    }
 
     /**
      * List content of a bucket
@@ -186,14 +194,63 @@ class AwsS3Adapter extends BaseAdapter {
      * @param {string} directory 
      * @param {boolean} recursive 
      */
-    listContents(directory = "", recursive = false) {}
+    async listContents(directory = "", recursive = false) {
+        let location = "";
+        
+        if (directory.length > 0) {
+            location = this.applyPathPrefix(stringUtils.trim(directory, "/")) + "/";;
+        }
+        
+        let params = {
+            "Bucket": this.bucket,
+            "Prefix": stringUtils.ltrim(location, "/"),
+            "MaxKeys": 999999
+        };
+
+        if (recursive === false) {
+            params["Delimiter"] = "/";
+        }
+          
+        //Return Emulate directory listing
+        let response = await this.retrievePaginatedListing(params);
+        let normalized = response.map((item) => {
+            return this.__normalizeResponse(item);
+        });
+
+        return normalized;
+    }
 
     /**
      * Retrieves paginated listing
      * @TODO: Implementation
      * @param {object} options 
      */
-    retrievePaginatedListing(options = []) {}
+    async retrievePaginatedListing(params = {}) {
+
+        let result = [];
+        let response = {};
+
+        try {
+            response = await new Promise((resolve, reject) => {
+              this.s3Client.listObjectsV2(params, (err, data) => {
+                  if (err) reject(err);
+                  else resolve(data);
+              });
+          });
+        } catch (e) {
+            return result;
+        }
+
+        if (response["Contents"]) {
+            result.push(...response["Contents"]);
+        }
+
+        if (response["CommonPrefixes"]) {
+            result.push(...response["CommonPrefixes"]);
+        }
+
+        return result;
+    }
 
     /**
      * Get metadata of an object
@@ -272,7 +329,21 @@ class AwsS3Adapter extends BaseAdapter {
      * @TODO: Implementation
      * @param {string} path 
      */
-    readObject(path) {}
+    async __readObject(path) {
+        let params = {
+            "Bucket": this.bucket,
+            "Key": this.applyPathPrefix(path)
+        };
+
+        let response = {};
+        try {
+            response = await this.__executeS3Command("getObject", params);
+        } catch (e) {
+            return false;
+        }
+
+        return this.__normalizeResponse(response, path);
+    }
 
     /**
      * Set visibility for an object
@@ -367,12 +438,15 @@ class AwsS3Adapter extends BaseAdapter {
         };
 
         let lastPos = result.path.length - 1;
+        
         if (result.path[lastPos] === "/") {
             result.path = result.path.substring(0, lastPos);
             result.type = "dir";
         }
 
-        return this.__mapResult({...response, ...result});
+        let newObject = {...result, ...response};
+        
+        return this.__mapResult(newObject);
     }
 
     /**
@@ -392,7 +466,10 @@ class AwsS3Adapter extends BaseAdapter {
             } 
         }
 
-        
+        if (Object.keys(newResult).length === 0 && newResult.constructor === Object) {
+            return result;
+        }
+
         return newResult;
     }
 

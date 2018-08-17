@@ -34,11 +34,16 @@ let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket'), {});
 //    console.log(mres);
 // };
 
-// tAsty.has("myFolder").then((res) => {
+// tAsty.has("test.txt").then((res) => {
 //   console.log("EXISTS ?", res);
 // });
 
-
+tAsty.listContents().then((res) => {
+  console.log("LISTING CONTENTS", res);
+});
+// tAsty.read("test.txt").then((res) => {
+//   console.log("READ ?", res);
+// });
 
 /*
  
