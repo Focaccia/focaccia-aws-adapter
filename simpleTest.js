@@ -24,14 +24,19 @@ let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket'), {});
 //   console.log("RESULT", d);
 // })
 
+// let res = tAsty.createDir("myFolder", {});
+// res.then((d) => {
+//   console.log("RESULT", d);
+// })
+
 // async function myFunc() {
 //    let mres = await tAsty.upltAstyd("test.txt", "HOLA MUNDO");
 //    console.log(mres);
 // };
 
-tAsty.has("test.txt").then((res) => {
-  console.log("EXISTS ?", res);
-});
+// tAsty.has("myFolder").then((res) => {
+//   console.log("EXISTS ?", res);
+// });
 
 
 

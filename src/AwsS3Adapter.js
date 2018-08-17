@@ -79,8 +79,8 @@ class AwsS3Adapter extends BaseAdapter {
      * @param {string} contents 
      * @param {object} config 
      */
-    write(path, contents, config = {}) {
-        return this.upload(path, contents, config);
+    async write(path, contents, config = {}) {
+        return await this.upload(path, contents, config);
     }
 
     /**
@@ -89,17 +89,7 @@ class AwsS3Adapter extends BaseAdapter {
      * @param {string} contents 
      * @param {object} config 
      */
-    update(path, contents, config = {}) {
-        return this.upload(path, contents, config);
-    }
-
-    /**
-     * Write a new file
-     * @param {string} path 
-     * @param {string} contents 
-     * @param {object} config 
-     */
-    async upload(path, contents, config = {}) {
+    async update(path, contents, config = {}) {
         return await this.upload(path, contents, config);
     }
 
@@ -128,9 +118,14 @@ class AwsS3Adapter extends BaseAdapter {
     /**
      * Delete an object
      * @param {string} path 
+     * @param {boolean} bIsFolder 
      */
-    async delete(path) {
+    async delete(path, bIsFolder = false) {
         let location = this.applyPathPrefix(path);
+
+        if (bIsFolder) {
+            location = `${location}/`;
+        }
 
         let params = {
             "Bucket": this.bucket,
@@ -148,14 +143,17 @@ class AwsS3Adapter extends BaseAdapter {
      * @TODO: Implementation
      * @param {string} dirname 
      */    
-    deleteDir(dirname) {}
+    async deleteDir(dirname) {
+        return await this.delete(dirname, true);
+    }
 
     /**
      * Creates a directory
-     * @TODO: Implementation
      * @param {string} dirname 
      */    
-    createDir(dirname) {}
+    async createDir(dirname, config) {
+        return await this.upload(dirname + '/', '', config);
+    }
 
     /**
      * Checks if a file exists
@@ -481,7 +479,6 @@ class AwsS3Adapter extends BaseAdapter {
      * @param {object} params 
      */
     async __executeS3Command(command, params) {
-
         let res = await this.s3Client[command](params).promise();
         return res;
     }
