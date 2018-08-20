@@ -1,6 +1,6 @@
 {
   "name": "@focaccia/aws-adapter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Focaccia AWS storage abstraction layer.",
   "main": "index.js",
   "scripts": {
