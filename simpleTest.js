@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk')
+const AWS = require('aws-sdk');
 const {AwsS3Adapter} = require("./");
 const {Focaccia} = require("@focaccia/focaccia");
 
