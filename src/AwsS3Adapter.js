@@ -259,8 +259,7 @@ class AwsS3Adapter extends BaseAdapter {
         let params = {...defaults, ...this.options};
         let response = await this.__executeS3Command("headObject", params);
 
-        this.__normalizeResponse(response, path);
-
+        return this.__normalizeResponse(response, path);
     }
 
     /**
