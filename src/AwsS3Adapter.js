@@ -252,10 +252,13 @@ class AwsS3Adapter extends BaseAdapter {
 
     /**
      * Get metadata of an object
-     * @TODO: Implementation
      * @param {string} path 
      */
-    getMetadata(path) {}
+    async getMetadata(path) {
+        let defaults = {"Bucket": this.bucket, "Key": this.applyPathPrefix(path)};
+        let params = {...defaults, ...this.options};
+        return await this.__executeS3Command("headObject", params)
+    }
 
     /**
      * Get size of an object
