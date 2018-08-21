@@ -257,7 +257,10 @@ class AwsS3Adapter extends BaseAdapter {
     async getMetadata(path) {
         let defaults = {"Bucket": this.bucket, "Key": this.applyPathPrefix(path)};
         let params = {...defaults, ...this.options};
-        return await this.__executeS3Command("headObject", params)
+        let response = await this.__executeS3Command("headObject", params);
+
+        this.__normalizeResponse(response, path);
+
     }
 
     /**
