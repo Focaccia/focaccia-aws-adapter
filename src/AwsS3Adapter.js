@@ -308,7 +308,7 @@ class AwsS3Adapter extends BaseAdapter {
      * @param {string} path 
      * @param {string} newpath 
      */
-    copy(path, newpath) {
+    async copy(path, newpath) {
 
         let acl = this.__getRawVisibility(path) === ACL.VISIBILITY_PUBLIC ? "public-read" : "private";
 
@@ -319,7 +319,10 @@ class AwsS3Adapter extends BaseAdapter {
             "ACL": acl
         };
 
-        return this.__executeS3Command("copyObject", params);
+        let response = await this.__executeS3Command("copyObject", params);
+        let bExists = await this.has(newpath)
+
+        return bExists;
     }
 
     /**

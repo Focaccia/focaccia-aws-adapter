@@ -11,8 +11,11 @@ AWS.config.update({
   retryDelayOptions: {base: 300}
 });
 
+
+
 //Using localstack :~~
 var s3 = new AWS.S3({endpoint:'http://localhost:4572', maxRetries: 1});
+
 
 let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket'), {});
 
@@ -38,20 +41,18 @@ let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket'), {});
 //   console.log("EXISTS ?", res);
 // });
 
-tAsty.listContents().then((res) => {
-  console.log("LISTING CONTENTS", res);
-});
+
 // tAsty.read("test.txt").then((res) => {
 //   console.log("READ ?", res);
 // });
 
-/*
+
  
  let res = tAsty.copy("test.txt", "copied-file.txt");
  res.then((dat) => {
   console.log("DATA", dat);
 })
-*/
+
 
 // let res = tAsty.rename("test.txt", "renamed-file.txt");
 // res.then((res) => {

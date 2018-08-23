@@ -9,6 +9,7 @@ Execute `npm install --save @focaccia/aws-adapter` into your main repo.
 ## How to use.
 
 **Uploading a file using AWS adapter**
+
 ```javascript
 const AWS = require('aws-sdk');
 const {AwsS3Adapter} = require("@focaccia/aws-adapter");
@@ -31,3 +32,5 @@ res.then((d) => {
    console.log("RESULT", d);
 })
 ```
+
+For more docs and reference please visit https://github.com/Focaccia/Focaccia

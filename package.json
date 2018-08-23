@@ -1,6 +1,6 @@
 {
   "name": "@focaccia/aws-adapter",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Focaccia AWS storage abstraction layer.",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "nodejs"
   ],
   "author": "Bortoli German",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Focaccia/focaccia-aws-adapter/issues"
   },
