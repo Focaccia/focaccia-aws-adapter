@@ -17,7 +17,9 @@ AWS.config.update({
 var s3 = new AWS.S3({endpoint:'http://localhost:4572', maxRetries: 1});
 
 
-let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket'), {});
+
+// let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket', "dev", {ServerSideEncryption: "aws:kms", SSEKMSKeyId: "kmsKey123"}), {});
+let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket', "dev"), {});
 
 
 /** UPLtAstyD A FILE */
@@ -32,26 +34,25 @@ let tAsty = new Focaccia(new AwsS3Adapter(s3, 'newBucket'), {});
 //   console.log("RESULT", d);
 // })
 
-// async function myFunc() {
-//    let mres = await tAsty.upltAstyd("test.txt", "HOLA MUNDO");
-//    console.log(mres);
-// };
+
 
 // tAsty.has("test.txt").then((res) => {
 //   console.log("EXISTS ?", res);
 // });
 
 
-// tAsty.read("test.txt").then((res) => {
+tAsty.read("test.txt").then((res) => {
+  console.log("READ ?", res);
+});
+
+// tAsty.getMetadata("test.txt").then((res) => {
 //   console.log("READ ?", res);
 // });
-
-
  
- let res = tAsty.copy("test.txt", "copied-file.txt");
- res.then((dat) => {
-  console.log("DATA", dat);
-})
+//  let res = tAsty.copy("test.txt", "copied-file.txt");
+//  res.then((dat) => {
+//   console.log("DATA", dat);
+// })
 
 
 // let res = tAsty.rename("test.txt", "renamed-file.txt");

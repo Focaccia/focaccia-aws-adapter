@@ -319,6 +319,8 @@ class AwsS3Adapter extends BaseAdapter {
             "ACL": acl
         };
 
+        params = {...params, ...this.options};
+
         let response = await this.__executeS3Command("copyObject", params);
         let bExists = await this.has(newpath)
 
@@ -352,8 +354,9 @@ class AwsS3Adapter extends BaseAdapter {
         };
 
         let response = {};
+        
         try {
-            response = await this.__executeS3Command("getObject", params);
+            response = await this.__executeS3Command("getObject", {...params, ...this.options});
         } catch (e) {
             return false;
         }
@@ -536,7 +539,7 @@ class AwsS3Adapter extends BaseAdapter {
 
           try {
             result = await new Promise((resolve, reject) => {
-                this.s3Client.listObjectsV2(params, (err, data) => {
+                this.s3Client.listObjectsV2({...params, ...this.options}, (err, data) => {
                     if (err) reject(err);
                     else resolve(data);
                 });
