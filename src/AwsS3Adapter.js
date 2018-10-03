@@ -1,6 +1,6 @@
 
 const { BaseAdapter, CONSTANTS, Utils } = require("@focaccia/focaccia");
-const {stringUtils, fileUtils} = Utils;
+const {stringUtils} = Utils;
 const { ACL } = CONSTANTS;
 
 const RESULT_MAP = {
@@ -11,7 +11,8 @@ const RESULT_MAP = {
     "Metadata": "metadata",
     "StorageClass": "storageclass",
     "ETag": "etag",
-    "VersionId": "versionid"
+    "VersionId": "versionid",
+    "Key": 'name',
 }
 
 const META_OPTIONS = [
@@ -215,8 +216,23 @@ class AwsS3Adapter extends BaseAdapter {
         let normalized = response.map((item) => {
             return this.__normalizeResponse(item);
         });
+        
+        return normalized.map(fp => {
 
-        return fileUtils.emulateDirectories(normalized);
+            let fullPathName = '';
+            if (fp.type === 'dir') {
+                fullPathName = fp.path;
+            }
+
+            if (fp.name) {
+                fullPathName = fp.name;
+            }
+
+            if (fullPathName.indexOf(location) === 0) {
+                fullPathName = fullPathName.substr(location.length);
+            }
+            return fullPathName;
+        });
     }
 
     /**
